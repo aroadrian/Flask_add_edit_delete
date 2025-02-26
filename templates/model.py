@@ -15,7 +15,7 @@ def db_connection():
         cur = conn.cursor()
 
          #Delete table if exists
-        cur.execute('DROP TABLE IF EXISTS users;')
+        #cur.execute('DROP TABLE IF EXISTS users;')
 
         # Create table
         cur.execute('''
