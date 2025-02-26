@@ -24,6 +24,8 @@ def db_connection():
                 first_name VARCHAR(150) NOT NULL,
                 last_name VARCHAR(150) NOT NULL,
                 email VARCHAR(255) NOT NULL UNIQUE,
+                password VARCHAR(255) NOT NULL UNIQUE,
+                gender VARCHAR(255) NOT NULL UNIQUE,
                 hobbies VARCHAR(50) NOT NULL,
                 country VARCHAR(50) NOT NULL
             );
