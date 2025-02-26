@@ -21,9 +21,7 @@ def get_db_connection():
 
 get_db_connection()
 
-#SELECT all data from the database
-
-
+# Check if the Database is Created
 @app.route('/', methods = ['GET','POST'])
 def create():
      if request.method == 'GET':
