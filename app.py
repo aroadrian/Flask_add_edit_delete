@@ -18,6 +18,7 @@ db = SQLAlchemy(app)
 
 # User Model for SQLAlchemy
 class User(db.Model):
+    __tablename__ = 'users' 
     uid = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
@@ -43,9 +44,15 @@ def register():
         age = request.form['age']
         email = request.form['email']
         password = request.form['password']
+
+         # Ensure the age is an integer (with a fallback to None if invalid)
+        try:
+            age = int(age)
+        except ValueError:
+            age = None  # You can handle this with a validation message if necessary
         
         # Hash the password
-        hashed_password = generate_password_hash(password, method='sha256')
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
         # Check if the username or email already exists
         existing_user = User.query.filter((User.email == email)).first()
