@@ -1,13 +1,12 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
 
 # Initialize the Flask application
 app = Flask(__name__)
 
 # Secret key for flash messages and sessions
-app.secret_key = 'your_secret_key'
+app.secret_key = os.urandom(24)
 
 # Database setup (Replace with your PostgreSQL database URL)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://team_mang:admin@localhost:5432/event_app'  # Adjust this
@@ -16,64 +15,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize SQLAlchemy
 db = SQLAlchemy(app)
 
-# User Model for SQLAlchemy
-class User(db.Model):
-    __tablename__ = 'user_info' 
-    uid = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(100), nullable=False)
-    last_name = db.Column(db.String(100), nullable=False)
-    age = db.Column(db.Integer, nullable=True)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-
-    def __repr__(self):
-        return f'<User {self.email}>'
+# Register the blueprint for registration
+from register import register_blueprint
+app.register_blueprint(register_blueprint)
 
 # Route for the home page
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# Route for the registration page
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        # Get form data
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        age = request.form['age']
-        email = request.form['email']
-        password = request.form['password']
-
-         # Ensure the age is an integer (with a fallback to None if invalid)
-        try:
-            age = int(age)
-        except ValueError:
-            age = None  # You can handle this with a validation message if necessary
-        
-        # Hash the password
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-
-        # Check if the username or email already exists
-        existing_user = User.query.filter((User.email == email)).first()
-
-        if existing_user:
-            flash("Username or Email already taken!", 'danger')
-            return redirect(url_for('register'))
-
-        # Create a new user instance
-        new_user = User(first_name=first_name, last_name=last_name, age=age, email=email, password=hashed_password)
-
-        # Add and commit the user to the database
-        db.session.add(new_user)
-        db.session.commit()
-
-        flash("User registered successfully!", 'success')
-        return redirect(url_for('index'))
-
-    return render_template('register.html')
-
-
+# Run the application
 if __name__ == '__main__':
     app.run(debug=True)
 
